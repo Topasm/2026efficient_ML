@@ -1,0 +1,33 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Runtime outputs
+outputs/
+logs/
+results/
+runs/
+wandb/
+checkpoints/
+*.log
+*.out
+*.err
+
+# Generated artifacts
+report/
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.html
+*.ipynb_checkpoints/
+
+# Large/local dependencies and data
+KaSA/
+data/
+datasets/
+.cache/
+*.pt
+*.pth
+*.bin
+*.safetensors
