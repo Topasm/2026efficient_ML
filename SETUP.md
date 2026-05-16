@@ -87,7 +87,22 @@ for f in scripts/run_*.sh; do bash -n "$f"; done
 uv run python -m py_compile scripts/*.py
 ```
 
-## 6. Run
+## 6. Mechanistic Experiment Preparation
+
+For the KaSA mechanistic experiments, prepare GLUE data, metrics, tokenizer, and `roberta-base` caches with:
+
+```bash
+uv run python scripts/prepare_mechanistic_experiments.py \
+  --model_name_or_path roberta-base \
+  --tasks cola,rte,mrpc,sst2 \
+  --bs 32 \
+  --max_length 512 \
+  --output_dir outputs/kasa_mechanistic/prepare
+```
+
+Then run `scripts/run_mechanistic_fast_ablation.sh` for a short grid or `scripts/run_mechanistic_full_experiments.sh` for full report-data collection.
+
+## 7. Run
 
 Examples:
 

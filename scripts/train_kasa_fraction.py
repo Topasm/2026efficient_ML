@@ -212,6 +212,7 @@ best_metric = max(acc_list)
 metric_name = {"cola": "matthews_correlation", "stsb": "pearson"}.get(task, "accuracy")
 
 os.makedirs(args.output_dir, exist_ok=True)
+model.save_pretrained(args.output_dir)
 results = {
     "task": task,
     "method": "kasa",
@@ -223,6 +224,7 @@ results = {
     "beta": args.beta,
     "gemma": args.gemma,
     "all_epochs": acc_list,
+    "adapter_dir": args.output_dir,
 }
 with open(os.path.join(args.output_dir, "results.json"), "w") as f:
     json.dump(results, f, indent=2)

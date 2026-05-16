@@ -5,13 +5,20 @@ __pycache__/
 # Runtime outputs
 outputs/
 logs/
-results/
+results/*
+!results/
+!results/**/
+!results/**/*.csv
 runs/
 wandb/
 checkpoints/
 *.log
 *.out
 *.err
+
+# Local/development planning notes
+KASA_MECHANISTIC_EXPERIMENT_PLAN.md
+KASA_MECHANISTIC_USAGE.md
 
 # Generated artifacts
 report/

@@ -259,6 +259,7 @@ def main():
     }.get(task, "accuracy")
 
     os.makedirs(args.output_dir, exist_ok=True)
+    model.save_pretrained(args.output_dir)
     results = {
         "task": task,
         "method": args.init_lora_weights,
@@ -268,6 +269,7 @@ def main():
         "best_metric": best_metric,
         "metric_name": metric_name,
         "all_epochs": acc_list,
+        "adapter_dir": args.output_dir,
     }
     with open(os.path.join(args.output_dir, "results.json"), "w") as f:
         json.dump(results, f, indent=2)
