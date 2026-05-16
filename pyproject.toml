@@ -1,0 +1,29 @@
+[project]
+name = "efficient-ml-peft-experiments"
+version = "0.1.0"
+description = "PEFT experiment scripts for LoRA, PiSSA, EVA, and KaSA-style adaptation."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "accelerate>=1.0",
+    "datasets>=3.0",
+    "evaluate>=0.4",
+    "numpy>=1.26",
+    "peft>=0.13",
+    "pillow>=10.0",
+    "protobuf>=4.25",
+    "scikit-learn>=1.4",
+    "scipy>=1.11",
+    "sentencepiece>=0.2",
+    "torch>=2.5",
+    "tqdm>=4.66",
+    "transformers>=4.50",
+]
+
+[project.optional-dependencies]
+vlm = [
+    "torchvision>=0.20",
+]
+
+[tool.uv]
+package = false

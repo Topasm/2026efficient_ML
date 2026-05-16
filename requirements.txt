@@ -1,10 +1,14 @@
 torch
+torchvision
 transformers
 datasets
 evaluate
 peft
 accelerate
 scikit-learn
+scipy
 numpy
 tqdm
 pillow
+protobuf
+sentencepiece

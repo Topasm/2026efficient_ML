@@ -4,13 +4,24 @@ Source code for running PEFT adaptation experiments with LoRA, PiSSA, EVA, and K
 
 This repository tracks code only. Generated outputs are written under `outputs/` and ignored by git.
 
-## Setup
+## Quick Setup
 
 ```bash
-python3 -m venv .venv
+uv sync
 source .venv/bin/activate
-pip install -r requirements.txt
 ```
+
+Or run `bash scripts/setup_uv.sh`.
+
+For VLM dependencies:
+
+```bash
+uv sync --extra vlm
+```
+
+For VLM setup through the helper script, run `bash scripts/setup_uv.sh --vlm`.
+
+See [SETUP.md](SETUP.md) for CUDA wheel notes, smoke tests, and KaSA setup details.
 
 KaSA runs require a local KaSA checkout that includes the modified PEFT fork:
 
