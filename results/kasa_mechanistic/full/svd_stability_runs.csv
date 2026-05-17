@@ -1,0 +1,2 @@
+max_d_U,max_d_V,max_spectral_gap,mean_d_U,mean_d_V,mean_spectral_gap,model_name_or_path,num_rows,rank,results_path,run_id,seed,target_modules,task,trials
+0.018553687259554863,0.018527138978242874,0.02749922312796116,0.0025469183441196542,0.0025168062245130487,0.00816920166592657,roberta-base,360,8,outputs/kasa_mechanistic/full/exp4_svd_stability/roberta_base_r8/results.json,roberta_base_r8,0,"query,value",cola,5
