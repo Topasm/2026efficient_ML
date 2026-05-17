@@ -23,12 +23,16 @@ ADAPTER_SUFFIXES = (
     (".lora_B.default.weight", "B"),
     (".lora_diag.default.weight", "diag"),
     (".lora_diag.default", "diag"),
+    (".lora_rot.default.weight", "rot"),
+    (".lora_rot.default", "rot"),
     (".lora_A.weight", "A"),
     (".lora_B.weight", "B"),
     (".lora_diag.weight", "diag"),
+    (".lora_rot.weight", "rot"),
     (".lora_A", "A"),
     (".lora_B", "B"),
     (".lora_diag", "diag"),
+    (".lora_rot", "rot"),
 )
 
 
@@ -70,6 +74,7 @@ def collect_adapter_tensors(state_dict, target_modules):
                 "A": parts["A"],
                 "B": parts["B"],
                 "diag": parts.get("diag"),
+                "rot": parts.get("rot"),
             }
         )
     return factors
@@ -79,6 +84,8 @@ def load_torch_factors(adapter_dir, target_modules):
     payload = torch.load(Path(adapter_dir) / "adapter_model.pt", map_location="cpu")
     config = payload["config"]
     factors = collect_adapter_tensors(payload["state_dict"], target_modules)
+    for factor in factors:
+        factor["rotation_order"] = config.get("rotation_order", "diag_rot")
     rank = int(config.get("rank", config.get("r", 0)))
     alpha = float(config.get("lora_alpha", rank or 1))
     return factors, alpha
@@ -144,20 +151,34 @@ def effective_rank_from_factors(left, right):
     return float(entropy.exp().detach().cpu())
 
 
-def svd_frame_metrics_from_cache(cache_entry, A, B, diag, scaling, rank, device):
+def svd_frame_metrics_from_cache(cache_entry, A, B, diag, rot, rotation_order, scaling, rank, device):
     A = A.to(device)
     B = B.to(device)
+    rot = rot.to(device) if rot is not None else None
     if diag is None:
-        left = B * scaling
+        diag_values = None
         has_diag = False
         diag_norm = 0.0
     else:
-        diag = diag.to(device).flatten()
-        left = B * diag.reshape(1, -1) * scaling
+        diag_values = diag.to(device).flatten()
         has_diag = True
-        diag_norm = float(diag.norm().detach().cpu())
+        diag_norm = float(diag_values.norm().detach().cpu())
 
-    delta = left @ A
+    if rot is None:
+        if diag_values is None:
+            left = B * scaling
+            right = A
+        else:
+            left = B * diag_values.reshape(1, -1) * scaling
+            right = A
+    elif rotation_order == "rot_diag":
+        left = (B @ rot) * scaling
+        right = A if diag_values is None else diag_values.reshape(-1, 1) * A
+    else:
+        left = B * scaling if diag_values is None else B * diag_values.reshape(1, -1) * scaling
+        right = rot @ A
+
+    delta = left @ right
     C = cache_entry["U"].transpose(0, 1) @ delta @ cache_entry["V"]
 
     total_energy = float((C * C).sum().detach().cpu())
@@ -205,7 +226,7 @@ def svd_frame_metrics_from_cache(cache_entry, A, B, diag, scaling, rank, device)
         "offdiag_energy_k": off_k_energy,
         "R_diag_k": r_diag_k,
         "R_off_k": r_off_k,
-        "effective_rank": effective_rank_from_factors(left, A),
+        "effective_rank": effective_rank_from_factors(left, right),
         "top_singular_value_w0": cache_entry["top_singular_value_w0"],
     }
 
@@ -234,6 +255,8 @@ def analyze_run(args, svd_cache, method, run_dir, output_dir):
                 factor["A"],
                 factor["B"],
                 factor["diag"],
+                factor.get("rot"),
+                factor.get("rotation_order", "diag_rot"),
                 scaling,
                 args.rank,
                 args.device,
@@ -277,7 +300,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=str, default="outputs/kasa_mechanistic/full")
     parser.add_argument("--model_name_or_path", type=str, default="roberta-base")
-    parser.add_argument("--methods", type=str, default="lora,svd_only,lora_diag,lora_diag_l2,kasa_noaux,kasa")
+    parser.add_argument("--methods", type=str, default="lora,svd_only,lora_diag,lora_diag_l2,lora_diag_rot,kasa_noaux,kasa")
     parser.add_argument("--target_modules", type=str, default="query,value")
     parser.add_argument("--rank", type=int, default=8)
     parser.add_argument("--device", type=str, default="auto", choices=["auto", "cpu", "cuda"])
