@@ -191,46 +191,18 @@ while [ "$(worker_count)" -gt 0 ]; do
 done
 
 echo "=== Experiment 2: SVD-frame update analysis ==="
-for method in lora svd_only lora_diag kasa_noaux kasa; do
-    for result in "$EXP3_ROOT/$method"/*/results.json; do
-        [ -f "$result" ] || continue
-        run_dir="$(dirname "$result")"
-        run_id="$(basename "$run_dir")"
-        task="${run_id%%_lr*}"
-        out="$EXP2_ROOT/${method}_${run_id}"
-        if [ -f "$out/results.json" ]; then
-            echo "[SKIP] $out"
-            continue
-        fi
-        if [ "$method" = "kasa" ]; then
-            launch_job "$out" \
-                env PYTHONPATH="$KASA_PYTHONPATH" uv run python scripts/analyze_update_svd_frame.py \
-                --model_name_or_path roberta-base \
-                --adapter_dir "$run_dir" \
-                --method "$method" \
-                --task "$task" \
-                --target_modules query,value \
-                --rank "$RANK" \
-                --output_dir "$out"
-        else
-            launch_job "$out" \
-                uv run python scripts/analyze_update_svd_frame.py \
-                --model_name_or_path roberta-base \
-                --adapter_dir "$run_dir" \
-                --method "$method" \
-                --task "$task" \
-                --target_modules query,value \
-                --rank "$RANK" \
-                --output_dir "$out"
-        fi
-    done
-done
-
-while [ "$(worker_count)" -gt 0 ]; do
-    if ! wait -n; then
-        RUN_FAILURES=$((RUN_FAILURES + 1))
-    fi
-done
+mkdir -p "$EXP2_ROOT/_batch"
+if ! uv run python scripts/analyze_update_svd_frame_batch.py \
+    --root "$OUT_ROOT" \
+    --model_name_or_path roberta-base \
+    --methods lora,svd_only,lora_diag,kasa_noaux,kasa \
+    --target_modules query,value \
+    --rank "$RANK" \
+    --device auto > "$EXP2_ROOT/_batch/run.log" 2>&1; then
+    RUN_FAILURES=$((RUN_FAILURES + 1))
+    echo "Experiment 2 batch analysis failed. See $EXP2_ROOT/_batch/run.log"
+    tail -80 "$EXP2_ROOT/_batch/run.log" || true
+fi
 
 echo "=== Experiment 1: gradient-SVD alignment ==="
 for task in "${TASKS_ARR[@]}"; do
