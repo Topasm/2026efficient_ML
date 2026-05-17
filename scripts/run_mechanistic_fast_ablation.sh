@@ -13,6 +13,7 @@ ALPHA="${ALPHA:-16}"
 EPOCHS="${EPOCHS:-10}"
 BS="${BS:-32}"
 DATA_FRACTION="${DATA_FRACTION:-1.0}"
+DIAG_L2_BETA="${DIAG_L2_BETA:-1e-4}"
 OUT_ROOT="${OUT_ROOT:-outputs/kasa_mechanistic/exp3_weighted_rank_ablation}"
 KASA_ROOT="${KASA_DIR:-$PROJECT_DIR/KaSA}"
 KASA_PYTHONPATH="$KASA_ROOT:$KASA_ROOT/peft/src"
@@ -63,6 +64,14 @@ for task in "${TASKS_ARR[@]}"; do
                 --diag_init ones \
                 --diag_trainable true \
                 --output_dir "$OUT_ROOT/lora_diag/${task}_lr${lr}_s${seed}"
+
+            run_or_skip "$OUT_ROOT/lora_diag_l2/${task}_lr${lr}_s${seed}" \
+                uv run python scripts/train_lora_diag.py \
+                "${common_args[@]}" \
+                --diag_init ones \
+                --diag_trainable true \
+                --diag_l2_beta "$DIAG_L2_BETA" \
+                --output_dir "$OUT_ROOT/lora_diag_l2/${task}_lr${lr}_s${seed}"
 
             if [ -d "$KASA_ROOT/peft/src" ]; then
                 run_or_skip "$OUT_ROOT/kasa/${task}_lr${lr}_s${seed}" \

@@ -97,7 +97,7 @@ def load_safetensor_factors(adapter_dir, target_modules):
 
 
 def load_adapter_factors(method, adapter_dir, target_modules):
-    if method == "lora_diag":
+    if method in ("lora_diag", "lora_diag_l2"):
         return load_torch_factors(adapter_dir, target_modules)
     return load_safetensor_factors(adapter_dir, target_modules)
 
@@ -277,7 +277,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=str, default="outputs/kasa_mechanistic/full")
     parser.add_argument("--model_name_or_path", type=str, default="roberta-base")
-    parser.add_argument("--methods", type=str, default="lora,svd_only,lora_diag,kasa_noaux,kasa")
+    parser.add_argument("--methods", type=str, default="lora,svd_only,lora_diag,lora_diag_l2,kasa_noaux,kasa")
     parser.add_argument("--target_modules", type=str, default="query,value")
     parser.add_argument("--rank", type=int, default=8)
     parser.add_argument("--device", type=str, default="auto", choices=["auto", "cpu", "cuda"])

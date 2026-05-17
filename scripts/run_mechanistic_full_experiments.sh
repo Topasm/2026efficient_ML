@@ -17,6 +17,7 @@ MAX_JOBS="${MAX_JOBS:-4}"
 NUM_GRAD_BATCHES="${NUM_GRAD_BATCHES:-16}"
 STABILITY_TRIALS="${STABILITY_TRIALS:-5}"
 GPU_SAMPLE_SECONDS="${GPU_SAMPLE_SECONDS:-5}"
+DIAG_L2_BETA="${DIAG_L2_BETA:-1e-4}"
 OUT_ROOT="${OUT_ROOT:-outputs/kasa_mechanistic/full}"
 KASA_ROOT="${KASA_DIR:-$PROJECT_DIR/KaSA}"
 KASA_PYTHONPATH="$KASA_ROOT:$KASA_ROOT/peft/src"
@@ -40,9 +41,10 @@ cat > "$OUT_ROOT/run_config.json" <<JSON
   "batch_size": "$BS",
   "data_fraction": "$DATA_FRACTION",
   "max_jobs": "$MAX_JOBS",
-  "methods": "lora svd_only lora_diag kasa_noaux kasa",
+  "methods": "lora svd_only lora_diag lora_diag_l2 kasa_noaux kasa",
   "num_gradient_batches": "$NUM_GRAD_BATCHES",
   "stability_trials": "$STABILITY_TRIALS",
+  "diag_l2_beta": "$DIAG_L2_BETA",
   "out_root": "$OUT_ROOT",
   "kasa_root": "$KASA_ROOT"
 }
@@ -163,6 +165,14 @@ for task in "${TASKS_ARR[@]}"; do
                 --diag_trainable true \
                 --output_dir "$EXP3_ROOT/lora_diag/${task}_lr${lr}_s${seed}"
 
+            launch_job "$EXP3_ROOT/lora_diag_l2/${task}_lr${lr}_s${seed}" \
+                uv run python scripts/train_lora_diag.py \
+                "${common_args[@]}" \
+                --diag_init ones \
+                --diag_trainable true \
+                --diag_l2_beta "$DIAG_L2_BETA" \
+                --output_dir "$EXP3_ROOT/lora_diag_l2/${task}_lr${lr}_s${seed}"
+
             if [ -d "$KASA_ROOT/peft/src" ]; then
                 launch_job "$EXP3_ROOT/kasa_noaux/${task}_lr${lr}_s${seed}" \
                     env PYTHONPATH="$KASA_PYTHONPATH" uv run python scripts/train_kasa_fraction.py \
@@ -195,7 +205,7 @@ mkdir -p "$EXP2_ROOT/_batch"
 if ! uv run python scripts/analyze_update_svd_frame_batch.py \
     --root "$OUT_ROOT" \
     --model_name_or_path roberta-base \
-    --methods lora,svd_only,lora_diag,kasa_noaux,kasa \
+    --methods lora,svd_only,lora_diag,lora_diag_l2,kasa_noaux,kasa \
     --target_modules query,value \
     --rank "$RANK" \
     --device auto > "$EXP2_ROOT/_batch/run.log" 2>&1; then

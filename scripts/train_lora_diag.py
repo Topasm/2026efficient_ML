@@ -117,6 +117,12 @@ def parse_args():
     parser.add_argument("--target_modules", type=str, default="query,value")
     parser.add_argument("--diag_init", type=str, default="ones", choices=["ones", "svd", "svd_norm"])
     parser.add_argument("--diag_trainable", type=parse_bool, default=True)
+    parser.add_argument(
+        "--diag_l2_beta",
+        type=float,
+        default=0.0,
+        help="Coefficient for LoRA diagonal L2 regularization, averaged over injected modules.",
+    )
     parser.add_argument("--head_lr", type=float, default=4e-4)
     parser.add_argument("--module_lr", type=float, default=4e-4)
     parser.add_argument("--num_epochs", type=int, default=100)
@@ -204,6 +210,18 @@ def iter_lora_diag_modules(model):
             yield name, module
 
 
+def diag_l2_loss(model):
+    loss = 0.0
+    count = 0
+    for _, module in iter_lora_diag_modules(model):
+        if module.lora_diag.requires_grad:
+            loss = loss + torch.sum(module.lora_diag.float() ** 2)
+            count += 1
+    if count == 0:
+        return None
+    return loss / count
+
+
 def save_lora_diag_adapter(model, output_dir, args, injected_modules):
     adapter_state = {}
     diag_norms = {}
@@ -216,7 +234,7 @@ def save_lora_diag_adapter(model, output_dir, args, injected_modules):
     payload = {
         "state_dict": adapter_state,
         "config": {
-            "method": "lora_diag",
+            "method": "lora_diag_l2" if args.diag_l2_beta > 0 else "lora_diag",
             "model_name_or_path": args.model_name_or_path,
             "target_modules": parse_csv(args.target_modules),
             "injected_modules": injected_modules,
@@ -225,6 +243,7 @@ def save_lora_diag_adapter(model, output_dir, args, injected_modules):
             "lora_dropout": args.lora_dropout,
             "diag_init": args.diag_init,
             "diag_trainable": args.diag_trainable,
+            "diag_l2_beta": args.diag_l2_beta,
             "task": args.task,
         },
         "diag_norms": diag_norms,
@@ -335,6 +354,10 @@ def main():
             batch = {k: v.to(device) for k, v in batch.items()}
             outputs = model(**batch)
             loss = outputs.loss
+            if args.diag_l2_beta > 0:
+                regularizer = diag_l2_loss(model)
+                if regularizer is not None:
+                    loss = loss + args.diag_l2_beta * regularizer
             loss.backward()
             optimizer.step()
             lr_scheduler.step()
@@ -368,7 +391,7 @@ def main():
     diag_norms = save_lora_diag_adapter(model, args.output_dir, args, injected_modules)
     results = {
         "task": task,
-        "method": "lora_diag",
+        "method": "lora_diag_l2" if args.diag_l2_beta > 0 else "lora_diag",
         "rank": args.lora_r,
         "seed": args.seed,
         "data_fraction": args.data_fraction,
@@ -376,6 +399,7 @@ def main():
         "module_lr": args.module_lr,
         "diag_init": args.diag_init,
         "diag_trainable": args.diag_trainable,
+        "diag_l2_beta": args.diag_l2_beta,
         "best_metric": best_metric,
         "metric_name": metric_name,
         "all_epochs": acc_list,
