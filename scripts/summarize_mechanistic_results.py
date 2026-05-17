@@ -30,6 +30,16 @@ def mean(values):
     return sum(values) / len(values) if values else None
 
 
+def lr_from_run_id(run_id):
+    marker = "_lr"
+    if marker not in run_id or "_s" not in run_id:
+        return None
+    try:
+        return float(run_id.split(marker, 1)[1].split("_s", 1)[0])
+    except ValueError:
+        return None
+
+
 def collect_ablation(root):
     rows = []
     exp_root = Path(root) / "exp3_weighted_rank_ablation"
@@ -37,6 +47,9 @@ def collect_ablation(root):
         data = load_json(path)
         method = path.parents[1].name
         run_id = path.parent.name
+        head_lr = data.get("head_lr")
+        module_lr = data.get("module_lr")
+        parsed_lr = lr_from_run_id(run_id)
         row = {
             "method_group": method,
             "run_id": run_id,
@@ -47,8 +60,8 @@ def collect_ablation(root):
             "rank": data.get("rank"),
             "seed": data.get("seed"),
             "data_fraction": data.get("data_fraction"),
-            "head_lr": data.get("head_lr"),
-            "module_lr": data.get("module_lr"),
+            "head_lr": head_lr if head_lr is not None else parsed_lr,
+            "module_lr": module_lr if module_lr is not None else parsed_lr,
             "best_metric": data.get("best_metric"),
             "metric_name": data.get("metric_name"),
             "num_epochs_recorded": len(data.get("all_epochs", [])),
