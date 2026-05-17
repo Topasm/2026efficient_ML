@@ -248,7 +248,7 @@ def main():
         "--method",
         type=str,
         required=True,
-        choices=["lora", "svd_only", "lora_diag", "lora_diag_l2", "kasa", "kasa_noaux", "peft"],
+        choices=["lora", "svd_only", "lora_diag", "lora_diag_l2", "lora_diag_rot", "kasa", "kasa_noaux", "peft"],
     )
     parser.add_argument("--task", type=str, default="cola")
     parser.add_argument("--target_modules", type=str, default="query,value")
@@ -260,7 +260,7 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    if args.method in ("lora_diag", "lora_diag_l2"):
+    if args.method in ("lora_diag", "lora_diag_l2", "lora_diag_rot"):
         base_model = AutoModelForSequenceClassification.from_pretrained(
             args.model_name_or_path,
             num_labels=task_num_labels(args.task),

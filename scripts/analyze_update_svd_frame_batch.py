@@ -104,7 +104,7 @@ def load_safetensor_factors(adapter_dir, target_modules):
 
 
 def load_adapter_factors(method, adapter_dir, target_modules):
-    if method in ("lora_diag", "lora_diag_l2"):
+    if method in ("lora_diag", "lora_diag_l2", "lora_diag_rot"):
         return load_torch_factors(adapter_dir, target_modules)
     return load_safetensor_factors(adapter_dir, target_modules)
 

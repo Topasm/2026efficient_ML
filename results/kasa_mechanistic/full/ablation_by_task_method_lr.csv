@@ -19,6 +19,10 @@ lr,mean_best_metric,mean_final_metric,method_group,metric_name,num_runs,seeds,ta
 0.0003,0.6282122098893863,0.6082673584711619,lora_diag_l2,matthews_correlation,3,"0,123,42",cola
 0.001,0.6331940102121255,0.6149052627880014,lora_diag_l2,matthews_correlation,3,"0,123,42",cola
 0.003,0.3103267716669769,0.0,lora_diag_l2,matthews_correlation,3,"0,123,42",cola
+0.0001,0.5905747450030051,0.5753977673733619,lora_diag_rot,matthews_correlation,3,"0,123,42",cola
+0.0003,0.6349862749960702,0.6022948216756577,lora_diag_rot,matthews_correlation,3,"0,123,42",cola
+0.001,0.6361363431530574,0.6057073380380519,lora_diag_rot,matthews_correlation,3,"0,123,42",cola
+0.003,0.17788498124801622,0.0,lora_diag_rot,matthews_correlation,3,"0,123,42",cola
 0.0001,0.5856001700378436,,svd_only,matthews_correlation,3,"0,123,42",cola
 0.0003,0.6224279360333421,,svd_only,matthews_correlation,3,"0,123,42",cola
 0.001,0.3745608494831161,,svd_only,matthews_correlation,3,"0,123,42",cola
@@ -43,6 +47,10 @@ lr,mean_best_metric,mean_final_metric,method_group,metric_name,num_runs,seeds,ta
 0.0003,0.8823529411764706,0.863562091503268,lora_diag_l2,accuracy,3,"0,123,42",mrpc
 0.001,0.8905228758169935,0.8782679738562091,lora_diag_l2,accuracy,3,"0,123,42",mrpc
 0.003,0.7565359477124183,0.6838235294117648,lora_diag_l2,accuracy,3,"0,123,42",mrpc
+0.0001,0.8660130718954249,0.8643790849673203,lora_diag_rot,accuracy,3,"0,123,42",mrpc
+0.0003,0.8848039215686274,0.8758169934640523,lora_diag_rot,accuracy,3,"0,123,42",mrpc
+0.001,0.8995098039215687,0.8888888888888888,lora_diag_rot,accuracy,3,"0,123,42",mrpc
+0.003,0.7998366013071895,0.6838235294117648,lora_diag_rot,accuracy,3,"0,123,42",mrpc
 0.0001,0.875,,svd_only,accuracy,3,"0,123,42",mrpc
 0.0003,0.8897058823529411,,svd_only,accuracy,3,"0,123,42",mrpc
 0.001,0.8913398692810457,,svd_only,accuracy,3,"0,123,42",mrpc
@@ -67,6 +75,10 @@ lr,mean_best_metric,mean_final_metric,method_group,metric_name,num_runs,seeds,ta
 0.0003,0.7629362214199759,0.740072202166065,lora_diag_l2,accuracy,3,"0,123,42",rte
 0.001,0.6895306859205776,0.6738868832731648,lora_diag_l2,accuracy,3,"0,123,42",rte
 0.003,0.5463297232250302,0.5270758122743683,lora_diag_l2,accuracy,3,"0,123,42",rte
+0.0001,0.7328519855595669,0.7244283995186523,lora_diag_rot,accuracy,3,"0,123,42",rte
+0.0003,0.7605294825511432,0.7472924187725631,lora_diag_rot,accuracy,3,"0,123,42",rte
+0.001,0.7773766546329722,0.7496991576413959,lora_diag_rot,accuracy,3,"0,123,42",rte
+0.003,0.5511432009626955,0.5270758122743683,lora_diag_rot,accuracy,3,"0,123,42",rte
 0.0001,0.7328519855595669,,svd_only,accuracy,3,"0,123,42",rte
 0.0003,0.7689530685920577,,svd_only,accuracy,3,"0,123,42",rte
 0.001,0.7870036101083032,,svd_only,accuracy,3,"0,123,42",rte
@@ -91,6 +103,10 @@ lr,mean_best_metric,mean_final_metric,method_group,metric_name,num_runs,seeds,ta
 0.0003,0.9480122324159023,0.9434250764525993,lora_diag_l2,accuracy,3,"0,123,42",sst2
 0.001,0.948776758409786,0.9430428134556575,lora_diag_l2,accuracy,3,"0,123,42",sst2
 0.003,0.9445718654434251,0.9396024464831805,lora_diag_l2,accuracy,3,"0,123,42",sst2
+0.0001,0.944954128440367,0.9403669724770642,lora_diag_rot,accuracy,3,"0,123,42",sst2
+0.0003,0.9476299694189603,0.9438073394495413,lora_diag_rot,accuracy,3,"0,123,42",sst2
+0.001,0.948012232415902,0.9438073394495413,lora_diag_rot,accuracy,3,"0,123,42",sst2
+0.003,0.9472477064220183,0.9430428134556575,lora_diag_rot,accuracy,3,"0,123,42",sst2
 0.0001,0.9430428134556575,,svd_only,accuracy,3,"0,123,42",sst2
 0.0003,0.944954128440367,,svd_only,accuracy,3,"0,123,42",sst2
 0.001,0.9495412844036698,,svd_only,accuracy,3,"0,123,42",sst2
