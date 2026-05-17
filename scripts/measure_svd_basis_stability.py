@@ -71,8 +71,10 @@ def main():
         return_dict=True,
     )
 
+    svd_device = "cuda" if torch.cuda.is_available() else "cpu"
     rows = []
     for module_name, weight in selected_linear_weights(model, target_modules):
+        weight = weight.to(svd_device)
         U, S, Vh = torch.linalg.svd(weight, full_matrices=False)
         if args.rank >= len(S):
             raise ValueError(f"rank={args.rank} is too large for {module_name} with {len(S)} singular values")

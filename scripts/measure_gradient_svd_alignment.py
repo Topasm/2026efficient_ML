@@ -64,15 +64,16 @@ def selected_modules(model, target_modules):
 
 
 def alignment_metrics(weight, gradient, rank):
-    weight = weight.detach().float().cpu()
-    gradient = gradient.detach().float().cpu()
+    svd_device = "cuda" if torch.cuda.is_available() else "cpu"
+    weight = weight.detach().float().to(svd_device)
+    gradient = gradient.detach().float().to(svd_device)
     U, singular_values, Vh = torch.linalg.svd(weight, full_matrices=False)
     V = Vh.transpose(0, 1)
     C = U.transpose(0, 1) @ gradient @ V
     alignment = C.diag().abs()
     total_alignment = alignment.sum().clamp_min(1e-12)
 
-    rho = spearmanr(singular_values.numpy(), alignment.numpy()).correlation
+    rho = spearmanr(singular_values.detach().cpu().numpy(), alignment.detach().cpu().numpy()).correlation
     if rho != rho:
         rho = 0.0
 
